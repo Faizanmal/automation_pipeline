@@ -1,0 +1,39 @@
+version: '3.9'
+
+services:
+  pipeline:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: automation-pipeline
+    environment:
+      - BRAVE_API_KEY=${BRAVE_API_KEY}
+      - FIRECRAWL_API_KEY=${FIRECRAWL_API_KEY}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY:-}
+      - GOOGLE_SEARCH_CX=${GOOGLE_SEARCH_CX:-}
+      - BING_API_KEY=${BING_API_KEY:-}
+      - SCRAPINGBEE_API_KEY=${SCRAPINGBEE_API_KEY:-}
+    volumes:
+      - ./output:/app/output
+      - ./logs:/app/logs
+      - ./config.yaml:/app/config.yaml:ro
+    networks:
+      - pipeline-net
+    restart: no
+    command: python main.py run --log-level INFO
+
+  # Optional: Redis for caching (future enhancement)
+  # redis:
+  #   image: redis:7-alpine
+  #   container_name: pipeline-redis
+  #   networks:
+  #     - pipeline-net
+  #   healthcheck:
+  #     test: ["CMD", "redis-cli", "ping"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 3
+
+networks:
+  pipeline-net:
+    driver: bridge

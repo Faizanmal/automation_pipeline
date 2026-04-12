@@ -1,0 +1,42 @@
+name: Scheduled Pipeline Run
+
+on:
+  schedule:
+    # Run daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+jobs:
+  run-pipeline:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      
+      - name: Run pipeline
+        env:
+          BRAVE_API_KEY: ${{ secrets.BRAVE_API_KEY }}
+          FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
+        run: |
+          python main.py run --log-level INFO
+      
+      - name: Generate report
+        run: |
+          python main.py report
+      
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: pipeline-output
+          path: output/
+          retention-days: 30
