@@ -5,7 +5,6 @@ import asyncio
 import logging
 from typing import Optional, Tuple
 import httpx
-from tenacity import retry, stop_after_attempt, wait_exponential
 logger = logging.getLogger(__name__)
 # API endpoints
 FIRECRAWL_API_URL = "https://api.firecrawl.dev/v0/scrape"
